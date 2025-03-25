@@ -37,6 +37,9 @@ var StringCtorPtr = base.add(0x1B78EC + 1);
 var ResourceManagerInitPtr = base.add(0x1DF3B0 + 1);
 var DataLoaderFactoryPtr = base.add(0x1E0948 + 1);
 var LogicDataTablesInitPtr = base.add(0x1748F0 + 1);
+var LoginOkMessageCtorPtr = base.add(0x1A5D10 + 1);
+var MessagingSendPtr = base.add(0x1B5CB4 + 1);
+var MessagingOnWakeupPtr = base.add(0x1B6120 + 1);
 
 var fMessagingCtor = new NativeFunction(MessagingCtorPtr, "void", ["pointer", "int"]); 
 var fMessagingOnReceive = new NativeFunction(MessagingOnReceivePtr, "void", ["pointer", "pointer"]);
@@ -48,6 +51,9 @@ var fStringCtor = new NativeFunction(StringCtorPtr, "void", ["pointer", "pointer
 var fResourceManagerInit = new NativeFunction(ResourceManagerInitPtr, "pointer", ["pointer", "pointer"]);
 var fDataLoaderFactory = new NativeFunction(DataLoaderFactoryPtr, "void", ["pointer"]);
 var fLogicDataTablesInit = new NativeFunction(LogicDataTablesInitPtr, "void", []);
+var fLoginOkMessageCtor = new NativeFunction(LoginOkMessageCtorPtr, "void", ["pointer"]);
+var fMessagingSend = new NativeFunction(MessagingSendPtr, "void", ["pointer", "pointer"]);
+var fMessagingOnWakeup = new NativeFunction(MessagingOnWakeupPtr, "void", ["pointer", "pointer"]);
 
 const Message = {
     _getByteStream: function(message) {
@@ -170,7 +176,7 @@ function createServer(port) {
 		if (message) messageType = Message._getMessageType(message);
 		switch (messageType) {
 			case 10101:
-				handleLoginMessage();
+				handleLoginMessage(messaging, message);
 				break; 
 			default: 
 				console.log("[*] Unhandled message: " + messageType);
@@ -178,7 +184,7 @@ function createServer(port) {
 		}
 	}
 	
-	function handleLoginMessage() {
+	function handleLoginMessage(messaging, message) {
 		console.log("[*] Login received!");
 		console.log("[*] Account ID: " + message.add(48).readPointer().readInt() + " " + message.add(48).readPointer().add(4).readInt());
 		console.log("[*] Pass token: " + getStringContent(message.add(52).readPointer()));
@@ -195,13 +201,52 @@ function createServer(port) {
 		console.log("[*] Is Android: " + message.add(168).readU8());
 		console.log("[*] IMEI: " + getStringContent(message.add(120)));
 		console.log("[*] Android ID: " + getStringContent(message.add(144)));		
+		var message = buildLoginOkMessage();
+		fMessagingSend(messaging, message);
+		fMessagingOnWakeup(messaging, messaging.add(60));
+		
+		console.log("[*] LoginOkMessage has been sent!");
+	}
+	
+	function buildLoginOkMessage() {
+		var message = malloc(116);
+		fLoginOkMessageCtor(message);
+		
+		message.add(48).writePointer(makeLogicLong(0, 1));
+		message.add(52).writePointer(makeLogicLong(0, 1));
+		
+		message.add(56).writePointer(makeString("mostSecureTokenEverByXeon&MrVitalik"));
+		
+		message.add(76).writeInt(5);
+		message.add(80).writeInt(2);
+		message.add(84).writeInt(4);
+		
+		message.add(88).writePointer(makeString("dev"));
+		return message;
+	}
+	
+	function makeLogicLong(high, low) {
+		var logicLong = malloc(8);
+		
+		logicLong.writeU32(high);
+		logicLong.add(4).writeU32(low);
+		
+		return logicLong;
+	}
+	
+	function makeString(str) {
+		var scStr = malloc(24);
+		
+		fStringCtor(scStr, Memory.allocUtf8String(str));
+		
+		return scStr;
 	}
 	
 	function initializeEncryption(messaging) {
-		var nonce = malloc(100);
+		var nonce = malloc(24);
 		fStringCtor(nonce, Memory.allocUtf8String("nonce"));
 		
-		var key = malloc(100);
+		var key = malloc(24);
 		fStringCtor(key, Memory.allocUtf8String(RC4_KEY));
 		
 		var encrypter = malloc(264);
