@@ -9,24 +9,58 @@ console.log("Memory protection set to RWX");
 
 const RC4_KEY = "fhsd6f86f67rt8fw78fw789we78r9789wer6re";
 
-var AF_INET = 2;
-var SOCK_STREAM = 1;
-var SOL_SOCKET = 1;
-var SO_REUSEADDR = 2;
-var IPPROTO_IP = 0;
-var INADDR_ANY = 0;
+const csvList = [
+	["csv/buildings.csv", 0],
+	["csv/locales.csv", 1],
+	["csv/resources.csv", 2],
+	["csv/characters.csv", 3],
+	["csv/animations.csv", 4],
+	["csv/projectiles.csv", 5],
+	["csv/texts.csv", 6],
+	["csv/building_classes.csv", 7],
+	["csv/obstacles.csv", 8],
+	["csv/effects.csv", 9],
+	["csv/particle_emitters.csv", 10],
+	["csv/experience_levels.csv", 11],
+	["csv/traps.csv", 12],
+	["csv/alliance_badges.csv", 13],
+	["csv/globals.csv", 14],
+	["csv/townhall_levels.csv", 15],
+	["csv/alliance_portal.csv", 16],
+	["csv/npcs.csv", 17],
+	["csv/decos.csv", 18],
+	["csv/resource_packs.csv", 19],
+	["csv/shields.csv", 20],
+	["csv/missions.csv", 21],
+	["csv/billing_packages.csv", 22],
+	["csv/achievements.csv", 23],
+	["csv/credits.csv", 24],
+	["csv/faq.csv", 25],
+	["csv/spells.csv", 26],
+	["csv/hints.csv", 27],
+	["csv/heroes.csv", 28],
+	["csv/leagues.csv", 29],
+	["csv/news.csv", 30],
+];
 
-var libcName = "libc.so";
+const AF_INET = 2;
+const SOCK_STREAM = 1;
+const SOL_SOCKET = 1;
+const SO_REUSEADDR = 2;
+const IPPROTO_IP = 0;
+const INADDR_ANY = 0;
 
-var socketFunc = new NativeFunction(Module.findExportByName(libcName, "socket"), "int", ["int", "int", "int"]);
-var bindFunc = new NativeFunction(Module.findExportByName(libcName, "bind"), "int", ["int", "pointer", "int"]);
-var listenFunc = new NativeFunction(Module.findExportByName(libcName, "listen"), "int", ["int", "int"]);
-var acceptFunc = new NativeFunction(Module.findExportByName(libcName, "accept"), "int", ["int", "pointer", "pointer"]);
-var recvFunc = new NativeFunction(Module.findExportByName(libcName, "recv"), "int", ["int", "pointer", "int", "int"]);
-var htons = new NativeFunction(Module.findExportByName(libcName, "htons"), "uint16", ["uint16"]);
-var setsockoptFunc = new NativeFunction(Module.findExportByName(libcName, "setsockopt"), "int", ["int", "int", "int", "pointer", "int"]);
-var malloc = new NativeFunction(Module.findExportByName(libcName, "malloc"), "pointer", ["int"]);
-var sleep = new NativeFunction(Module.findExportByName(libcName, "sleep"), "int", ["int"]);
+const libcName = "libc.so";
+
+const socketFunc = new NativeFunction(Module.findExportByName(libcName, "socket"), "int", ["int", "int", "int"]);
+const bindFunc = new NativeFunction(Module.findExportByName(libcName, "bind"), "int", ["int", "pointer", "int"]);
+const listenFunc = new NativeFunction(Module.findExportByName(libcName, "listen"), "int", ["int", "int"]);
+const acceptFunc = new NativeFunction(Module.findExportByName(libcName, "accept"), "int", ["int", "pointer", "pointer"]);
+const recvFunc = new NativeFunction(Module.findExportByName(libcName, "recv"), "int", ["int", "pointer", "int", "int"]);
+const htons = new NativeFunction(Module.findExportByName(libcName, "htons"), "uint16", ["uint16"]);
+const setsockoptFunc = new NativeFunction(Module.findExportByName(libcName, "setsockopt"), "int", ["int", "int", "int", "pointer", "int"]);
+const malloc = new NativeFunction(Module.findExportByName(libcName, "malloc"), "pointer", ["int"]);
+const free = new NativeFunction(Module.findExportByName(libcName, "free"), "void", ["pointer"]);
 
 const MessagingCtorPtr = base.add(0x1B5984 + 1);
 const MessagingOnReceivePtr = base.add(0x1B61F4 + 1);
@@ -179,7 +213,7 @@ function createServer(port) {
         Memory.writeU32(clientAddrSize, sockaddr_in_size);
         var clientSock = acceptFunc(sockfd, sockaddr, clientAddrSize);
         if (clientSock < 0) {
-            console.log("Ошибка accept: " + clientSock);
+            console.log("[*] Accept error: " + clientSock);
             setImmediate(acceptLoop);
             return;
         }
@@ -196,7 +230,7 @@ function createServer(port) {
 		
 		messaging.add(4).writePointer(factory);
 		
-		console.log("[*] Вызываем onReceive!");
+		console.log("[*] calling onReceive!");
 		var connection = messaging.add(60);
 		try {
 			fMessagingOnReceive(messaging, connection);	
@@ -204,12 +238,11 @@ function createServer(port) {
 		catch (e) {
 			console.log(JSON.stringify(e));
 		}
-		console.log("[*] onReceive вызван!");			
+		console.log("[*] onReceive called!");			
 		
 		var message = fMessagingNextMessage(messaging);
 		if (message != null) handleMessage(messaging, message);
 		
-        //readLoop(clientSock);
         setImmediate(acceptLoop);
     }
 	
@@ -249,6 +282,7 @@ function createServer(port) {
 		fMessagingOnWakeup(messaging, messaging.add(60));
 		
 		console.log("[*] LoginOkMessage has been sent!");
+		console.log("[*] ownHomeDataMessage has been sent!");
 	}
 	
 	function buildLoginOkMessage() {
@@ -290,8 +324,6 @@ function createServer(port) {
 		}
 		message.add(52).writePointer(logicClientHome);
 		message.add(56).writePointer(defaultAvatar);
-		
-		//console.log(ByteStream._getByteArray(Message.));
 		
 		return message;
 	}
@@ -357,82 +389,23 @@ function createServer(port) {
 		fResourceListenerAddFile(resourceListener, makeString("level/tutorial_npc.json"));
 		fResourceListenerAddFile(resourceListener, makeString("level/tutorial_npc2.json"));
 		
-		fResourceListenerAddFile(resourceListener, makeString("csv/achievements.csv"));
-		fResourceListenerAddFile(resourceListener, makeString("csv/alliance_badges.csv"));
-		fResourceListenerAddFile(resourceListener, makeString("csv/alliance_portal.csv"));
-		fResourceListenerAddFile(resourceListener, makeString("csv/animations.csv"));
-		fResourceListenerAddFile(resourceListener, makeString("csv/billing_packages.csv"));
-		fResourceListenerAddFile(resourceListener, makeString("csv/buildings.csv"));
-		fResourceListenerAddFile(resourceListener, makeString("csv/building_classes.csv"));
-		fResourceListenerAddFile(resourceListener, makeString("csv/characters.csv"));
-		fResourceListenerAddFile(resourceListener, makeString("csv/credits.csv"));
-		fResourceListenerAddFile(resourceListener, makeString("csv/decos.csv"));
-		fResourceListenerAddFile(resourceListener, makeString("csv/effects.csv"));
-		fResourceListenerAddFile(resourceListener, makeString("csv/experience_levels.csv"));
-		fResourceListenerAddFile(resourceListener, makeString("csv/faq.csv"));
-		fResourceListenerAddFile(resourceListener, makeString("csv/globals.csv"));
-		fResourceListenerAddFile(resourceListener, makeString("csv/heroes.csv"));
-		fResourceListenerAddFile(resourceListener, makeString("csv/hints.csv"));
-		fResourceListenerAddFile(resourceListener, makeString("csv/leagues.csv"));
-		fResourceListenerAddFile(resourceListener, makeString("csv/locales.csv"));
-		fResourceListenerAddFile(resourceListener, makeString("csv/missions.csv"));
-		fResourceListenerAddFile(resourceListener, makeString("csv/news.csv"));
-		fResourceListenerAddFile(resourceListener, makeString("csv/npcs.csv"));
-		fResourceListenerAddFile(resourceListener, makeString("csv/obstacles.csv"));
-		fResourceListenerAddFile(resourceListener, makeString("csv/particle_emitters.csv"));
-		fResourceListenerAddFile(resourceListener, makeString("csv/projectiles.csv"));
-		fResourceListenerAddFile(resourceListener, makeString("csv/resources.csv"));
-		fResourceListenerAddFile(resourceListener, makeString("csv/resource_packs.csv"));
-		fResourceListenerAddFile(resourceListener, makeString("csv/shields.csv"));
-		fResourceListenerAddFile(resourceListener, makeString("csv/spells.csv"));
-		fResourceListenerAddFile(resourceListener, makeString("csv/texts.csv"));
-		fResourceListenerAddFile(resourceListener, makeString("csv/townhall_levels.csv"));
-		fResourceListenerAddFile(resourceListener, makeString("csv/traps.csv"));			
+		for (const [path] of csvList) {
+			fResourceListenerAddFile(resourceListener, makeString(path));			
+		}
 	
 		fResourceListenerStartLoading(resourceListener);
 	
-		fResourceManagerLoadNextResource();
-
+		base.add(0x1E1494).writeByteArray([0xFF, 0xFF, 0xFF, 0xFF]);
+	
 		while (fResourceManagerResourceToLoad()) {
-			fResourceManagerLoadNextResource();
-		}
+			try {
+				fResourceManagerLoadNextResource();
+			} catch {}
+		}		
+		
+		free(resourceListener);
 		
 		var dataTableResourcesArray = fLogicResourcesCreateDataTableResourcesArray();
-		
-		const csvList = [
-			["csv/buildings.csv", 0],
-			["csv/locales.csv", 1],
-			["csv/resources.csv", 2],
-			["csv/characters.csv", 3],
-			["csv/animations.csv", 4],
-			["csv/projectiles.csv", 5],
-			["csv/texts.csv", 6],
-			["csv/building_classes.csv", 7],
-			["csv/obstacles.csv", 8],
-			["csv/effects.csv", 9],
-			["csv/particle_emitters.csv", 10],
-			["csv/experience_levels.csv", 11],
-			["csv/traps.csv", 12],
-			["csv/alliance_badges.csv", 13],
-			["csv/globals.csv", 14],
-			["csv/townhall_levels.csv", 15],
-			["csv/alliance_portal.csv", 16],
-			["csv/npcs.csv", 17],
-			["csv/decos.csv", 18],
-			["csv/resource_packs.csv", 19],
-			["csv/shields.csv", 20],
-			["csv/missions.csv", 21],
-			["csv/billing_packages.csv", 22],
-			["csv/achievements.csv", 23],
-			["csv/credits.csv", 24],
-			["csv/faq.csv", 25],
-			["csv/spells.csv", 26],
-			["csv/hints.csv", 27],
-			["csv/heroes.csv", 28],
-			["csv/leagues.csv", 29],
-			["csv/news.csv", 30],
-		];
-
 		for (const [path, index] of csvList) {
 			const csv = fResourceManagerGetCSV(makeString(path));
 			fLogicResourcesLoad(dataTableResourcesArray, index, csv);
@@ -443,5 +416,4 @@ function createServer(port) {
 	
     setImmediate(acceptLoop);
 }
-
 createServer(9339);
