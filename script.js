@@ -441,43 +441,6 @@ function createServer(port) {
 		console.log("[*] Resources loaded!");
 	}
 	
-	function loadCsv() {
-		var resourceListener = malloc(20);
-		fResourceListenerCtor(resourceListener);
-		
-		fResourceListenerAddFile(resourceListener, makeString("csv/achievements.csv"));
-		fResourceListenerAddFile(resourceListener, makeString("csv/alliance_badges.csv"));
-		fResourceListenerAddFile(resourceListener, makeString("csv/alliance_portal.csv"));
-		fResourceListenerAddFile(resourceListener, makeString("csv/animations.csv"));
-		fResourceListenerAddFile(resourceListener, makeString("csv/billing_packages.csv"));
-		fResourceListenerAddFile(resourceListener, makeString("csv/buildings.csv"));
-		fResourceListenerAddFile(resourceListener, makeString("csv/building_classes.csv"));
-		fResourceListenerAddFile(resourceListener, makeString("csv/characters.csv"));
-		fResourceListenerAddFile(resourceListener, makeString("csv/credits.csv"));
-		fResourceListenerAddFile(resourceListener, makeString("csv/decos.csv"));
-		fResourceListenerAddFile(resourceListener, makeString("csv/effects.csv"));
-		fResourceListenerAddFile(resourceListener, makeString("csv/experience_levels.csv"));
-		fResourceListenerAddFile(resourceListener, makeString("csv/faq.csv"));
-		fResourceListenerAddFile(resourceListener, makeString("csv/globals.csv"));
-		fResourceListenerAddFile(resourceListener, makeString("csv/heroes.csv"));
-		fResourceListenerAddFile(resourceListener, makeString("csv/hints.csv"));
-		fResourceListenerAddFile(resourceListener, makeString("csv/leagues.csv"));
-		fResourceListenerAddFile(resourceListener, makeString("csv/locales.csv"));
-		fResourceListenerAddFile(resourceListener, makeString("csv/missions.csv"));
-		fResourceListenerAddFile(resourceListener, makeString("csv/news.csv"));
-		fResourceListenerAddFile(resourceListener, makeString("csv/npcs.csv"));
-		fResourceListenerAddFile(resourceListener, makeString("csv/obstacles.csv"));
-		fResourceListenerAddFile(resourceListener, makeString("csv/particle_emitters.csv"));
-		fResourceListenerAddFile(resourceListener, makeString("csv/projectiles.csv"));
-		fResourceListenerAddFile(resourceListener, makeString("csv/resources.csv"));
-		fResourceListenerAddFile(resourceListener, makeString("csv/resource_packs.csv"));
-		fResourceListenerAddFile(resourceListener, makeString("csv/shields.csv"));
-		fResourceListenerAddFile(resourceListener, makeString("csv/spells.csv"));
-		fResourceListenerAddFile(resourceListener, makeString("csv/texts.csv"));
-		fResourceListenerAddFile(resourceListener, makeString("csv/townhall_levels.csv"));
-		fResourceListenerAddFile(resourceListener, makeString("csv/traps.csv"));		
-	}
-	
     setImmediate(acceptLoop);
 }
 
