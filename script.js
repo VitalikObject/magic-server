@@ -1,11 +1,11 @@
 const base = Module.findBaseAddress("libg.so");
 const size = Process.getModuleByName("libg.so").size;
 
-console.log("libg.so base:", base);
-console.log("libg.so size:", size);
+console.log("[*] libg.so base:", base);
+console.log("[*] libg.so size:", size);
 
 Memory.protect(base, size, 'rwx');
-console.log("Memory protection set to RWX");
+console.log("[*] Memory protection set to RWX");
 
 const RC4_KEY = "fhsd6f86f67rt8fw78fw789we78r9789wer6re";
 
@@ -178,10 +178,10 @@ function createServer(port) {
 	initResources();
     var sockfd = socketFunc(AF_INET, SOCK_STREAM, IPPROTO_IP);
     if (sockfd < 0) {
-        console.log("Ошибка создания сокета: " + sockfd);
+        console.log("[*] Socket creation error: " + sockfd);
         return;
     }
-    console.log("Сокет создан: " + sockfd);
+    console.log("[*] Socket created: " + sockfd);
 	
 	var optval = Memory.alloc(4);
     Memory.writeU32(optval, 1); 
@@ -197,17 +197,17 @@ function createServer(port) {
 
     var ret = bindFunc(sockfd, sockaddr, sockaddr_in_size);
     if (ret < 0) {
-        console.log("Ошибка привязки (bind): " + ret);
+        console.log("[*] Binding error: " + ret);
         return;
     }
-    console.log("Привязка успешна");
+    console.log("[*] Binding successful");
 
     ret = listenFunc(sockfd, 5);
     if (ret < 0) {
         console.log("Ошибка listen: " + ret);
         return;
     }
-    console.log("Прослушивание успешно");
+    console.log("[*] Listening started successfully");
 
     function acceptLoop() {
         var clientAddrSize = Memory.alloc(4);
@@ -218,7 +218,7 @@ function createServer(port) {
             setImmediate(acceptLoop);
             return;
         }
-        console.log("Принято соединение: " + clientSock);
+        console.log("[*] Connection accepted: " + clientSock);
 		var messaging = malloc(140);
 		fMessagingCtor(messaging, 50);
 		messaging.add(60).writeU32(clientSock);
