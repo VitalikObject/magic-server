@@ -26,34 +26,75 @@ var recvFunc = new NativeFunction(Module.findExportByName(libcName, "recv"), "in
 var htons = new NativeFunction(Module.findExportByName(libcName, "htons"), "uint16", ["uint16"]);
 var setsockoptFunc = new NativeFunction(Module.findExportByName(libcName, "setsockopt"), "int", ["int", "int", "int", "pointer", "int"]);
 var malloc = new NativeFunction(Module.findExportByName(libcName, "malloc"), "pointer", ["int"]);
+var sleep = new NativeFunction(Module.findExportByName(libcName, "sleep"), "int", ["int"]);
 
-var MessagingCtorPtr = base.add(0x1B5984 + 1);
-var MessagingOnReceivePtr = base.add(0x1B61F4 + 1);
-var MessagingNextMessagePtr = base.add(0x1B5D88 + 1);
-var LogicMagicMessageFactoryCtorPtr = base.add(0x18EE88 + 1);
-var RC4EncrypterCtorPtr = base.add(0x1DE1A0 + 1);
-var MessagingSetEncryptersPtr = base.add(0x1B58D4 + 1);
-var StringCtorPtr = base.add(0x1B78EC + 1);
-var ResourceManagerInitPtr = base.add(0x1DF3B0 + 1);
-var DataLoaderFactoryPtr = base.add(0x1E0948 + 1);
-var LogicDataTablesInitPtr = base.add(0x1748F0 + 1);
-var LoginOkMessageCtorPtr = base.add(0x1A5D10 + 1);
-var MessagingSendPtr = base.add(0x1B5CB4 + 1);
-var MessagingOnWakeupPtr = base.add(0x1B6120 + 1);
+const MessagingCtorPtr = base.add(0x1B5984 + 1);
+const MessagingOnReceivePtr = base.add(0x1B61F4 + 1);
+const MessagingNextMessagePtr = base.add(0x1B5D88 + 1);
+const LogicMagicMessageFactoryCtorPtr = base.add(0x18EE88 + 1);
+const RC4EncrypterCtorPtr = base.add(0x1DE1A0 + 1);
+const MessagingSetEncryptersPtr = base.add(0x1B58D4 + 1);
+const StringCtorPtr = base.add(0x1B78EC + 1);
+const ResourceManagerInitPtr = base.add(0x1DF3B0 + 1);
+const DataLoaderFactoryPtr = base.add(0x1E0948 + 1);
+const LogicDataTablesInitPtr = base.add(0x1748F0 + 1);
+const LoginOkMessageCtorPtr = base.add(0x1A5D10 + 1);
+const MessagingSendPtr = base.add(0x1B5CB4 + 1);
+const MessagingOnWakeupPtr = base.add(0x1B6120 + 1);
+const OwnHomeDataMessageCtorPtr = base.add(0x1AE448 + 1);
+const ResourceManagerGetJSONPtr = base.add(0x1DFC00 + 1);
+const LogicClientHomePtr = base.add(0x18BB9C + 1);
+const StringBuilderCtorPtr = base.add(0x1B99B4 + 1);
+const LogicJSONObjectPtr = base.add(0x1F253C + 1);
+const StringBuilderToStringPtr = base.add(0x1B8CB4 + 1);
+const LogicClientHomeSetHomeJSONPtr = base.add(0x18BD00 + 1);
+const LogicClientAvatarGetDefaultAvatarPtr = base.add(0x162890 + 1);
+const ResourceListenerCtorPtr = base.add(0x1DE328 + 1);
+const ResourceListenerAddFilePtr = base.add(0x1DE558 + 1);
+const ResourceListenerStartLoadingPtr = base.add(0x1DE60C + 1);
+const ResourceManagerLoadNextResourcePtr = base.add(0x1DF858 + 1);
+const ResourceManagerResourceToLoadPtr = base.add(0x1DFB70 + 1);
+const InitModeCtorPtr = base.add(0x14E4D0 + 1);
+const InitModeUpdateLoadingPtr = base.add(0x14E8F0 + 1);
+const LogicDataTablesCreateReferencesPtr = base.add(0x174B0C + 1);
+const LogicResourcesCreateDataTableResourcesArrayPtr = base.add(0x181564 + 1);
+const ResourceManagerGetCSVPtr = base.add(0x1DFBB8 + 1);
+const LogicResourcesLoadPtr = base.add(0x181ADC + 1);
+const LogicDataTableResourceGetFileNamePtr = base.add(0x174684 + 1);
 
-var fMessagingCtor = new NativeFunction(MessagingCtorPtr, "void", ["pointer", "int"]); 
-var fMessagingOnReceive = new NativeFunction(MessagingOnReceivePtr, "void", ["pointer", "pointer"]);
-var fMessagingNextMessage = new NativeFunction(MessagingNextMessagePtr, "pointer", ["pointer"]); 
-var fLogicMagicMessageFactoryCtor = new NativeFunction(LogicMagicMessageFactoryCtorPtr, "void", ["pointer"]);
-var fRC4EncrypterCtor = new NativeFunction(RC4EncrypterCtorPtr, "void", ["pointer", "pointer", "pointer"]); 
-var fMessagingSetEncrypters = new NativeFunction(MessagingSetEncryptersPtr, "void", ["pointer", "pointer", "pointer"]);
-var fStringCtor = new NativeFunction(StringCtorPtr, "void", ["pointer", "pointer"]);
-var fResourceManagerInit = new NativeFunction(ResourceManagerInitPtr, "pointer", ["pointer", "pointer"]);
-var fDataLoaderFactory = new NativeFunction(DataLoaderFactoryPtr, "void", ["pointer"]);
-var fLogicDataTablesInit = new NativeFunction(LogicDataTablesInitPtr, "void", []);
-var fLoginOkMessageCtor = new NativeFunction(LoginOkMessageCtorPtr, "void", ["pointer"]);
-var fMessagingSend = new NativeFunction(MessagingSendPtr, "void", ["pointer", "pointer"]);
-var fMessagingOnWakeup = new NativeFunction(MessagingOnWakeupPtr, "void", ["pointer", "pointer"]);
+const fMessagingCtor = new NativeFunction(MessagingCtorPtr, "void", ["pointer", "int"]); 
+const fMessagingOnReceive = new NativeFunction(MessagingOnReceivePtr, "void", ["pointer", "pointer"]);
+const fMessagingNextMessage = new NativeFunction(MessagingNextMessagePtr, "pointer", ["pointer"]); 
+const fLogicMagicMessageFactoryCtor = new NativeFunction(LogicMagicMessageFactoryCtorPtr, "void", ["pointer"]);
+const fRC4EncrypterCtor = new NativeFunction(RC4EncrypterCtorPtr, "void", ["pointer", "pointer", "pointer"]); 
+const fMessagingSetEncrypters = new NativeFunction(MessagingSetEncryptersPtr, "void", ["pointer", "pointer", "pointer"]);
+const fStringCtor = new NativeFunction(StringCtorPtr, "void", ["pointer", "pointer"]);
+const fResourceManagerInit = new NativeFunction(ResourceManagerInitPtr, "pointer", ["pointer", "pointer"]);
+const fDataLoaderFactory = new NativeFunction(DataLoaderFactoryPtr, "void", ["pointer"]);
+const fLogicDataTablesInit = new NativeFunction(LogicDataTablesInitPtr, "void", []);
+const fLoginOkMessageCtor = new NativeFunction(LoginOkMessageCtorPtr, "void", ["pointer"]);
+const fMessagingSend = new NativeFunction(MessagingSendPtr, "void", ["pointer", "pointer"]);
+const fMessagingOnWakeup = new NativeFunction(MessagingOnWakeupPtr, "void", ["pointer", "pointer"]);
+const fOwnHomeDataMessageCtor = new NativeFunction(OwnHomeDataMessageCtorPtr, "void", ["pointer"]);
+const fResourceManagerGetJSON = new NativeFunction(ResourceManagerGetJSONPtr, "pointer", ["pointer"]);
+const fLogicClientHome = new NativeFunction(LogicClientHomePtr, "void", ["pointer"]);
+const fStringBuilderCtor = new NativeFunction(StringBuilderCtorPtr, "void", ["pointer"]);
+const fLogicJSONObject = new NativeFunction(LogicJSONObjectPtr, "void", ["pointer", "pointer"]);
+const fStringBuilderToString = new NativeFunction(StringBuilderToStringPtr, "pointer", ["pointer"]);
+const fLogicClientHomeSetHomeJSON = new NativeFunction(LogicClientHomeSetHomeJSONPtr, "void", ["pointer", "pointer"]);
+const fLogicClientAvatarGerDefaultAvatar = new NativeFunction(LogicClientAvatarGetDefaultAvatarPtr, "pointer", []);
+const fResourceListenerCtor = new NativeFunction(ResourceListenerCtorPtr, "void", ["pointer"]);
+const fResourceListenerAddFile = new NativeFunction(ResourceListenerAddFilePtr, "void", ["pointer", "pointer"]);
+const fResourceListenerStartLoading = new NativeFunction(ResourceListenerStartLoadingPtr, "void", ["pointer"]);
+const fResourceManagerLoadNextResource = new NativeFunction(ResourceManagerLoadNextResourcePtr, "void", []);
+const fResourceManagerResourceToLoad = new NativeFunction(ResourceManagerResourceToLoadPtr, "int", []);
+const fInitModeCtor = new NativeFunction(InitModeCtorPtr, "void", ["pointer"]);
+const fInitModeUpdateLoading = new NativeFunction(InitModeUpdateLoadingPtr, "void", ["pointer"]);
+const fLogicDataTablesCreateReferences = new NativeFunction(LogicDataTablesCreateReferencesPtr, "void", []);
+const fLogicResourcesCreateDataTableResourcesArray = new NativeFunction(LogicResourcesCreateDataTableResourcesArrayPtr, "pointer", []);
+const fResourceManagerGetCSV = new NativeFunction(ResourceManagerGetCSVPtr, "pointer", ["pointer"]);
+const fLogicResourcesLoad = new NativeFunction(LogicResourcesLoadPtr, "void", ["pointer", "int", "pointer"]);
+const fLogicDataTableResourceGetFileName = new NativeFunction(LogicDataTableResourceGetFileNamePtr, "pointer", ["pointer", "pointer"]);
 
 const Message = {
     _getByteStream: function(message) {
@@ -166,14 +207,14 @@ function createServer(port) {
 		console.log("[*] onReceive вызван!");			
 		
 		var message = fMessagingNextMessage(messaging);
-		handleMessage(messaging, message);
+		if (message != null) handleMessage(messaging, message);
 		
         //readLoop(clientSock);
         setImmediate(acceptLoop);
     }
 	
 	function handleMessage(messaging, message, messageType = 0) {
-		if (message) messageType = Message._getMessageType(message);
+		messageType = Message._getMessageType(message);
 		switch (messageType) {
 			case 10101:
 				handleLoginMessage(messaging, message);
@@ -200,9 +241,11 @@ function createServer(port) {
 		console.log("[*] Preferred device language: " + getStringContent(message.add(84)));
 		console.log("[*] Is Android: " + message.add(168).readU8());
 		console.log("[*] IMEI: " + getStringContent(message.add(120)));
-		console.log("[*] Android ID: " + getStringContent(message.add(144)));		
-		var message = buildLoginOkMessage();
-		fMessagingSend(messaging, message);
+		console.log("[*] Android ID: " + getStringContent(message.add(144)));			
+		var loginOkMessage = buildLoginOkMessage();
+		var ownHomeDataMessage = buildOwnHomeDataMessage();
+		fMessagingSend(messaging, loginOkMessage);
+		fMessagingSend(messaging, ownHomeDataMessage);
 		fMessagingOnWakeup(messaging, messaging.add(60));
 		
 		console.log("[*] LoginOkMessage has been sent!");
@@ -222,6 +265,34 @@ function createServer(port) {
 		message.add(84).writeInt(4);
 		
 		message.add(88).writePointer(makeString("dev"));
+		return message;
+	}
+	
+	function buildOwnHomeDataMessage() {
+		var message = malloc(60);
+		fOwnHomeDataMessageCtor(message);	
+		
+		var homeJSON = fResourceManagerGetJSON(Memory.allocUtf8String("level/starting_home.json"));
+		var logicClientHome = malloc(32);
+		fLogicClientHome(logicClientHome);
+		
+		var stringBuilder = malloc(100);
+		fStringBuilderCtor(stringBuilder);
+		fLogicJSONObject(homeJSON, stringBuilder);
+		var home = fStringBuilderToString(stringBuilder);
+		fLogicClientHomeSetHomeJSON(logicClientHome, home);
+		
+		try {
+		var defaultAvatar = fLogicClientAvatarGerDefaultAvatar();
+		}
+		catch (e) {
+			console.log(JSON.stringify(e));
+		}
+		message.add(52).writePointer(logicClientHome);
+		message.add(56).writePointer(defaultAvatar);
+		
+		//console.log(ByteStream._getByteArray(Message.));
+		
 		return message;
 	}
 	
@@ -270,6 +341,141 @@ function createServer(port) {
 		fResourceManagerInit(dataLoaderFactory, Memory.allocUtf8String(""));
 		
 		fLogicDataTablesInit();
+		
+		var resourceListener = malloc(20);
+		fResourceListenerCtor(resourceListener);
+		fResourceListenerAddFile(resourceListener, makeString("level/starting_home.json"));
+		
+		for (let i = 1; i <= 48; ++i) {
+			fResourceListenerAddFile(resourceListener, makeString(`level/npc${i}.json`));
+		}
+		
+		for (let i = 1; i <= 10; ++i) {
+			fResourceListenerAddFile(resourceListener, makeString(`level/townhall${i}.json`));
+		}
+		
+		fResourceListenerAddFile(resourceListener, makeString("level/tutorial_npc.json"));
+		fResourceListenerAddFile(resourceListener, makeString("level/tutorial_npc2.json"));
+		
+		fResourceListenerAddFile(resourceListener, makeString("csv/achievements.csv"));
+		fResourceListenerAddFile(resourceListener, makeString("csv/alliance_badges.csv"));
+		fResourceListenerAddFile(resourceListener, makeString("csv/alliance_portal.csv"));
+		fResourceListenerAddFile(resourceListener, makeString("csv/animations.csv"));
+		fResourceListenerAddFile(resourceListener, makeString("csv/billing_packages.csv"));
+		fResourceListenerAddFile(resourceListener, makeString("csv/buildings.csv"));
+		fResourceListenerAddFile(resourceListener, makeString("csv/building_classes.csv"));
+		fResourceListenerAddFile(resourceListener, makeString("csv/characters.csv"));
+		fResourceListenerAddFile(resourceListener, makeString("csv/credits.csv"));
+		fResourceListenerAddFile(resourceListener, makeString("csv/decos.csv"));
+		fResourceListenerAddFile(resourceListener, makeString("csv/effects.csv"));
+		fResourceListenerAddFile(resourceListener, makeString("csv/experience_levels.csv"));
+		fResourceListenerAddFile(resourceListener, makeString("csv/faq.csv"));
+		fResourceListenerAddFile(resourceListener, makeString("csv/globals.csv"));
+		fResourceListenerAddFile(resourceListener, makeString("csv/heroes.csv"));
+		fResourceListenerAddFile(resourceListener, makeString("csv/hints.csv"));
+		fResourceListenerAddFile(resourceListener, makeString("csv/leagues.csv"));
+		fResourceListenerAddFile(resourceListener, makeString("csv/locales.csv"));
+		fResourceListenerAddFile(resourceListener, makeString("csv/missions.csv"));
+		fResourceListenerAddFile(resourceListener, makeString("csv/news.csv"));
+		fResourceListenerAddFile(resourceListener, makeString("csv/npcs.csv"));
+		fResourceListenerAddFile(resourceListener, makeString("csv/obstacles.csv"));
+		fResourceListenerAddFile(resourceListener, makeString("csv/particle_emitters.csv"));
+		fResourceListenerAddFile(resourceListener, makeString("csv/projectiles.csv"));
+		fResourceListenerAddFile(resourceListener, makeString("csv/resources.csv"));
+		fResourceListenerAddFile(resourceListener, makeString("csv/resource_packs.csv"));
+		fResourceListenerAddFile(resourceListener, makeString("csv/shields.csv"));
+		fResourceListenerAddFile(resourceListener, makeString("csv/spells.csv"));
+		fResourceListenerAddFile(resourceListener, makeString("csv/texts.csv"));
+		fResourceListenerAddFile(resourceListener, makeString("csv/townhall_levels.csv"));
+		fResourceListenerAddFile(resourceListener, makeString("csv/traps.csv"));			
+	
+		fResourceListenerStartLoading(resourceListener);
+	
+		fResourceManagerLoadNextResource();
+
+		while (fResourceManagerResourceToLoad()) {
+			fResourceManagerLoadNextResource();
+		}
+		
+		var dataTableResourcesArray = fLogicResourcesCreateDataTableResourcesArray();
+		
+		const csvList = [
+			["csv/buildings.csv", 0],
+			["csv/locales.csv", 1],
+			["csv/resources.csv", 2],
+			["csv/characters.csv", 3],
+			["csv/animations.csv", 4],
+			["csv/projectiles.csv", 5],
+			["csv/texts.csv", 6],
+			["csv/building_classes.csv", 7],
+			["csv/obstacles.csv", 8],
+			["csv/effects.csv", 9],
+			["csv/particle_emitters.csv", 10],
+			["csv/experience_levels.csv", 11],
+			["csv/traps.csv", 12],
+			["csv/alliance_badges.csv", 13],
+			["csv/globals.csv", 14],
+			["csv/townhall_levels.csv", 15],
+			["csv/alliance_portal.csv", 16],
+			["csv/npcs.csv", 17],
+			["csv/decos.csv", 18],
+			["csv/resource_packs.csv", 19],
+			["csv/shields.csv", 20],
+			["csv/missions.csv", 21],
+			["csv/billing_packages.csv", 22],
+			["csv/achievements.csv", 23],
+			["csv/credits.csv", 24],
+			["csv/faq.csv", 25],
+			["csv/spells.csv", 26],
+			["csv/hints.csv", 27],
+			["csv/heroes.csv", 28],
+			["csv/leagues.csv", 29],
+			["csv/news.csv", 30],
+		];
+
+		for (const [path, index] of csvList) {
+			const csv = fResourceManagerGetCSV(makeString(path));
+			fLogicResourcesLoad(dataTableResourcesArray, index, csv);
+		}
+		
+		console.log("[*] Resources loaded!");
+	}
+	
+	function loadCsv() {
+		var resourceListener = malloc(20);
+		fResourceListenerCtor(resourceListener);
+		
+		fResourceListenerAddFile(resourceListener, makeString("csv/achievements.csv"));
+		fResourceListenerAddFile(resourceListener, makeString("csv/alliance_badges.csv"));
+		fResourceListenerAddFile(resourceListener, makeString("csv/alliance_portal.csv"));
+		fResourceListenerAddFile(resourceListener, makeString("csv/animations.csv"));
+		fResourceListenerAddFile(resourceListener, makeString("csv/billing_packages.csv"));
+		fResourceListenerAddFile(resourceListener, makeString("csv/buildings.csv"));
+		fResourceListenerAddFile(resourceListener, makeString("csv/building_classes.csv"));
+		fResourceListenerAddFile(resourceListener, makeString("csv/characters.csv"));
+		fResourceListenerAddFile(resourceListener, makeString("csv/credits.csv"));
+		fResourceListenerAddFile(resourceListener, makeString("csv/decos.csv"));
+		fResourceListenerAddFile(resourceListener, makeString("csv/effects.csv"));
+		fResourceListenerAddFile(resourceListener, makeString("csv/experience_levels.csv"));
+		fResourceListenerAddFile(resourceListener, makeString("csv/faq.csv"));
+		fResourceListenerAddFile(resourceListener, makeString("csv/globals.csv"));
+		fResourceListenerAddFile(resourceListener, makeString("csv/heroes.csv"));
+		fResourceListenerAddFile(resourceListener, makeString("csv/hints.csv"));
+		fResourceListenerAddFile(resourceListener, makeString("csv/leagues.csv"));
+		fResourceListenerAddFile(resourceListener, makeString("csv/locales.csv"));
+		fResourceListenerAddFile(resourceListener, makeString("csv/missions.csv"));
+		fResourceListenerAddFile(resourceListener, makeString("csv/news.csv"));
+		fResourceListenerAddFile(resourceListener, makeString("csv/npcs.csv"));
+		fResourceListenerAddFile(resourceListener, makeString("csv/obstacles.csv"));
+		fResourceListenerAddFile(resourceListener, makeString("csv/particle_emitters.csv"));
+		fResourceListenerAddFile(resourceListener, makeString("csv/projectiles.csv"));
+		fResourceListenerAddFile(resourceListener, makeString("csv/resources.csv"));
+		fResourceListenerAddFile(resourceListener, makeString("csv/resource_packs.csv"));
+		fResourceListenerAddFile(resourceListener, makeString("csv/shields.csv"));
+		fResourceListenerAddFile(resourceListener, makeString("csv/spells.csv"));
+		fResourceListenerAddFile(resourceListener, makeString("csv/texts.csv"));
+		fResourceListenerAddFile(resourceListener, makeString("csv/townhall_levels.csv"));
+		fResourceListenerAddFile(resourceListener, makeString("csv/traps.csv"));		
 	}
 	
     setImmediate(acceptLoop);
