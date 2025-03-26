@@ -95,6 +95,7 @@ const LogicResourcesCreateDataTableResourcesArrayPtr = base.add(0x181564 + 1);
 const ResourceManagerGetCSVPtr = base.add(0x1DFBB8 + 1);
 const LogicResourcesLoadPtr = base.add(0x181ADC + 1);
 const LogicDataTableResourceGetFileNamePtr = base.add(0x174684 + 1);
+const ResourceManagerAndroidAssetManagerPtr = base.add(0x2F718C);
 
 const fMessagingCtor = new NativeFunction(MessagingCtorPtr, "void", ["pointer", "int"]); 
 const fMessagingOnReceive = new NativeFunction(MessagingOnReceivePtr, "void", ["pointer", "pointer"]);
@@ -395,12 +396,12 @@ function createServer(port) {
 	
 		fResourceListenerStartLoading(resourceListener);
 	
-		base.add(0x1E1494).writeByteArray([0xFF, 0xFF, 0xFF, 0xFF]);
-	
+		while (ResourceManagerAndroidAssetManagerPtr.readPointer() == 0x0) {
+			Thread.sleep(0.5);
+		}
+
 		while (fResourceManagerResourceToLoad()) {
-			try {
-				fResourceManagerLoadNextResource();
-			} catch {}
+			fResourceManagerLoadNextResource();
 		}		
 		
 		free(resourceListener);
@@ -416,4 +417,5 @@ function createServer(port) {
 	
     setImmediate(acceptLoop);
 }
+
 createServer(9339);
