@@ -61,6 +61,8 @@ const htons = new NativeFunction(Module.findExportByName(libcName, "htons"), "ui
 const setsockoptFunc = new NativeFunction(Module.findExportByName(libcName, "setsockopt"), "int", ["int", "int", "int", "pointer", "int"]);
 const malloc = new NativeFunction(Module.findExportByName(libcName, "malloc"), "pointer", ["int"]);
 const free = new NativeFunction(Module.findExportByName(libcName, "free"), "void", ["pointer"]);
+const pthread_create = new NativeFunction(Module.findExportByName(libcName, 'pthread_create'), 'int', ['pointer', 'pointer', 'pointer', 'pointer']);
+const pthread_exit = new NativeFunction(Module.findExportByName(libcName, 'pthread_exit'), 'void', ['pointer']);
 
 const MessagingCtorPtr = base.add(0x1B5984 + 1);
 const MessagingOnReceivePtr = base.add(0x1B61F4 + 1);
@@ -204,48 +206,52 @@ function createServer(port) {
 
     ret = listenFunc(sockfd, 5);
     if (ret < 0) {
-        console.log("Ошибка listen: " + ret);
+        console.log("Listening error: " + ret);
         return;
     }
     console.log("[*] Listening started successfully");
 
-    function acceptLoop() {
-        var clientAddrSize = Memory.alloc(4);
-        Memory.writeU32(clientAddrSize, sockaddr_in_size);
-        var clientSock = acceptFunc(sockfd, sockaddr, clientAddrSize);
-        if (clientSock < 0) {
-            console.log("[*] Accept error: " + clientSock);
-            setImmediate(acceptLoop);
-            return;
-        }
-        console.log("[*] Connection accepted: " + clientSock);
-		var messaging = malloc(140);
-		fMessagingCtor(messaging, 50);
-		messaging.add(60).writeU32(clientSock);
-		messaging.add(64).writeU8(1); // isConnected
-		
-		initializeEncryption(messaging);
-		
-		var factory = malloc(4);
-		fLogicMagicMessageFactoryCtor(factory);
-		
-		messaging.add(4).writePointer(factory);
-		
-		console.log("[*] calling onReceive!");
-		var connection = messaging.add(60);
-		try {
-			fMessagingOnReceive(messaging, connection);	
+    var acceptLoop = new NativeCallback(function() {
+		while (true) {
+			var clientAddrSize = Memory.alloc(4);
+			Memory.writeU32(clientAddrSize, sockaddr_in_size);
+			var clientSock = acceptFunc(sockfd, sockaddr, clientAddrSize);
+			if (clientSock < 0) {
+				console.log("[*] Accept error: " + clientSock);
+				setImmediate(acceptLoop);
+				return;
+			}
+			console.log("[*] Connection accepted: " + clientSock);
+			var messaging = malloc(140);
+			fMessagingCtor(messaging, 50);
+			messaging.add(60).writeU32(clientSock);
+			messaging.add(64).writeU8(1); // isConnected
+			
+			initializeEncryption(messaging);
+			
+			var factory = malloc(4);
+			fLogicMagicMessageFactoryCtor(factory);
+			
+			messaging.add(4).writePointer(factory);
+			
+			var connection = messaging.add(60);
+
+			var recvThread = Memory.alloc(Process.pointerSize);
+			pthread_create(recvThread, NULL, processMessages, messaging);
+		}	
+    }, 'void', []);
+	
+	var processMessages = new NativeCallback(function(messaging) {
+		while (true) {
+			fMessagingOnReceive(messaging, messaging.add(60));
+			var message = fMessagingNextMessage(messaging);
+			if (message != 0x0) {
+				handleMessage(messaging, message);
+			}
 		}
-		catch (e) {
-			console.log(JSON.stringify(e));
-		}
-		console.log("[*] onReceive called!");			
-		
-		var message = fMessagingNextMessage(messaging);
-		if (message != null) handleMessage(messaging, message);
-		
-        setImmediate(acceptLoop);
-    }
+
+		pthread_exit(NULL);
+	}, 'void', ['pointer']);
 	
 	function handleMessage(messaging, message, messageType = 0) {
 		messageType = Message._getMessageType(message);
@@ -283,7 +289,7 @@ function createServer(port) {
 		fMessagingOnWakeup(messaging, messaging.add(60));
 		
 		console.log("[*] LoginOkMessage has been sent!");
-		console.log("[*] ownHomeDataMessage has been sent!");
+		console.log("[*] OwnHomeDataMessage has been sent!");
 	}
 	
 	function buildLoginOkMessage() {
@@ -317,12 +323,8 @@ function createServer(port) {
 		var home = fStringBuilderToString(stringBuilder);
 		fLogicClientHomeSetHomeJSON(logicClientHome, home);
 		
-		try {
 		var defaultAvatar = fLogicClientAvatarGerDefaultAvatar();
-		}
-		catch (e) {
-			console.log(JSON.stringify(e));
-		}
+
 		message.add(52).writePointer(logicClientHome);
 		message.add(56).writePointer(defaultAvatar);
 		
@@ -415,7 +417,8 @@ function createServer(port) {
 		console.log("[*] Resources loaded!");
 	}
 	
-    setImmediate(acceptLoop);
+	var acceptThread = Memory.alloc(Process.pointerSize);
+	pthread_create(acceptThread, NULL, acceptLoop, NULL);
 }
 
 createServer(9339);
